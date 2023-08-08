@@ -1,0 +1,144 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100vh;
+}
+
+body {
+  height: 100%;
+  background: #323c49;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  font-family: Roboto, sans-serif;
+}
+
+.content {
+  padding: 100px 40px;
+  max-width: 600px;
+  width: 100%;
+}
+
+@media screen and (max-width: 670px) {
+  .content {
+    width: unset;
+  }
+}
+
+.header p {
+  margin-bottom: 15px;
+  color: white;
+  font-size: 20px;
+  text-align: center;
+}
+
+.header .heading {
+  font-size: 24px;
+}
+
+.controls {
+  margin-top: 65px;
+}
+
+.selection-buttons {
+  display: flex;
+  margin-bottom: 35px;
+  overflow: hidden;
+}
+
+.selection-buttons span {
+  font-family: Roboto, sans-serif;
+  width: 33%;
+  text-align: center;
+  padding: 10px;
+  background: white;
+}
+
+.selection-buttons span:not(.active) {
+  cursor: pointer;
+}
+
+.selection-buttons span.active {
+  background: #5c4797;
+  color: white;
+}
+
+.selection-buttons span:hover:not(.active) {
+  opacity: 0.7;
+}
+
+.selection-buttons span:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.selection-buttons span:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.input-field {
+  display: flex;
+  width: 100%;
+}
+
+.input-field input,
+.copy-field .result {
+  padding: 10px;
+  border: 0;
+  font-family: Roboto, sans-serif;
+  border-radius: 5px;
+  outline: none;
+  width: calc(100% - 90px);
+  font-size: 16px;
+  color: black;
+  font-weight: 400;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-field input::placeholder {
+  color: gray;
+}
+
+.input-field button,
+.copy-field button {
+  padding: 10px;
+  border: 1px solid gray;
+  border-radius: 5px;
+  background: #5c4797;
+  color: white;
+  outline: none;
+  margin: 0;
+  border: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: Roboto, sans-serif;
+  width: 90px;
+}
+
+.input-field input {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.input-field button:hover,
+.copy-field button:hover {
+  opacity: 0.6;
+}
+
+.copy-field {
+  margin-top: 35px;
+  display: flex;
+  width: 100%;
+}
+
+.copy-field .result {
+  background: #bed4ef;
+  height: 19px;
+}

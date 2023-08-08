@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="content">
+      <div class="header">
+        <p class="heading">Branch Name Generator</p>
+        <p>I'm pretty sure you are tired of copying task title</p>
+        <p>Try it out</p>
+      </div>
+      <div class="controls">
+        <div class="selection-buttons">
+          <span id="feature-button" class="active">feature</span>
+          <span id="bugfix-button">bugfix</span>
+          <span id="hotfix-button">hotfix</span>
+        </div>
+        <!-- <form action=""> -->
+        <div class="input-field">
+          <input type="text" id="title-input" placeholder="Task's title" />
+        </div>
+        <!-- </form> -->
+        <div class="copy-field">
+          <span class="result" id="result-span"></span>
+          <button class="copy" id="copy-button">Copy</button>
+        </div>
+      </div>
+    </div>
+    <script src="./main.js"></script>
+  </body>
+</html>
