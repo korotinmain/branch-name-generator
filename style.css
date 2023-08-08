@@ -12,19 +12,25 @@ body {
   background: #323c49;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   font-family: Roboto, sans-serif;
 }
 
 .content {
   padding: 100px 40px;
-  max-width: 600px;
+  max-width: 700px;
   width: 100%;
+  background: #241f30;
+  border-radius: 12px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
-@media screen and (max-width: 670px) {
+@media screen and (max-width: 700px) {
   .content {
     width: unset;
+    height: 100%;
+    border-radius: 0;
   }
 }
 
