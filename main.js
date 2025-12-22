@@ -10,6 +10,8 @@ const Themes = {
 };
 
 const THEME_STORAGE_KEY = 'branch-name-generator-theme';
+const HISTORY_STORAGE_KEY = 'branch-name-generator-history';
+const HISTORY_LIMIT = 3;
 
 const slugifyTitle = (value) =>
   value
@@ -23,6 +25,8 @@ const getElements = () => ({
   copyButton: document.querySelector('#copy-button'),
   copyLabel: document.querySelector('#copy-button .label'),
   toast: document.querySelector('#toast'),
+  clearHistoryButton: document.querySelector('#clear-history'),
+  historyList: document.querySelector('#history-list'),
   themeToggle: document.querySelector('#theme-toggle'),
   themeIcon: document.querySelector('#theme-toggle .theme-icon'),
   themeLabel: document.querySelector('#theme-toggle .theme-label'),
@@ -56,6 +60,8 @@ const initBranchNameGenerator = () => {
     !elements.copyButton ||
     !elements.copyLabel ||
     !elements.toast ||
+    !elements.historyList ||
+    !elements.clearHistoryButton ||
     !elements.themeToggle ||
     !elements.themeIcon ||
     !elements.themeLabel ||
@@ -71,6 +77,27 @@ const initBranchNameGenerator = () => {
     activeSelector: Selectors.FEATURE,
     slug: '',
     theme: detectInitialTheme(),
+    history: [],
+  };
+
+  const persistHistory = () => {
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(state.history));
+    } catch (error) {
+      // ignore
+    }
+  };
+
+  const loadHistory = () => {
+    try {
+      const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        state.history = Array.isArray(parsed) ? parsed.slice(0, HISTORY_LIMIT) : [];
+      }
+    } catch (error) {
+      state.history = [];
+    }
   };
 
   const updateResult = () => {
@@ -127,6 +154,47 @@ const initBranchNameGenerator = () => {
     }, 1800);
   };
 
+  const renderHistory = () => {
+    if (!elements.historyList) return;
+    if (!state.history.length) {
+      elements.historyList.innerHTML = `<div class="history-empty">No recent branches yet.</div>`;
+      return;
+    }
+    elements.historyList.innerHTML = '';
+    state.history.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'history-item';
+      const text = document.createElement('span');
+      text.textContent = item;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Copy';
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(item);
+          showToast('Copied from history', 'success');
+        } catch (error) {
+          showToast('Failed to copy', 'error');
+        }
+      });
+      row.append(text, button);
+      elements.historyList.appendChild(row);
+    });
+  };
+
+  const addToHistory = (value) => {
+    const withoutDupes = [value, ...state.history.filter((item) => item !== value)];
+    state.history = withoutDupes.slice(0, HISTORY_LIMIT);
+    renderHistory();
+    persistHistory();
+  };
+
+  const clearHistory = () => {
+    state.history = [];
+    renderHistory();
+    persistHistory();
+  };
+
   const copyToClipboard = async () => {
     const textToCopy = elements.resultSpan.textContent;
     if (!state.slug) {
@@ -140,6 +208,7 @@ const initBranchNameGenerator = () => {
       await navigator.clipboard.writeText(textToCopy);
       setCopyState('success', 'Copied!');
       showToast('Branch name copied', 'success');
+      addToHistory(textToCopy);
     } catch (error) {
       console.error('Failed to copy branch name', error);
       setCopyState('error', 'Copy failed');
@@ -153,8 +222,11 @@ const initBranchNameGenerator = () => {
   });
   elements.copyButton.addEventListener('click', copyToClipboard);
   elements.themeToggle.addEventListener('click', toggleTheme);
+  elements.clearHistoryButton.addEventListener('click', clearHistory);
 
+  loadHistory();
   updateResult();
+  renderHistory();
   setTheme(state.theme);
 };
 
