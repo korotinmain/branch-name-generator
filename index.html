@@ -57,7 +57,13 @@
   <body>
     <div class="content">
       <div class="top-row">
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-label="Toggle theme"
+          title="Toggle light/dark theme"
+          type="button"
+        >
           <span class="theme-icon" aria-hidden="true">🌙</span>
           <span class="theme-label">Dark</span>
         </button>
@@ -69,23 +75,24 @@
       </div>
       <div class="controls">
         <div class="selection-buttons">
-          <span id="feature-button" class="active" data-selector="feature"
-            >feature</span
-          >
-          <span id="bugfix-button" data-selector="bugfix">bugfix</span>
-          <span id="hotfix-button" data-selector="hotfix">hotfix</span>
+          <button id="feature-button" class="active" data-selector="feature" type="button">
+            feature
+          </button>
+          <button id="bugfix-button" data-selector="bugfix" type="button">bugfix</button>
+          <button id="hotfix-button" data-selector="hotfix" type="button">hotfix</button>
         </div>
         <div class="input-field">
-          <input type="text" id="title-input" placeholder="Task's title" />
+          <input type="text" id="title-input" placeholder="Task's title" aria-label="Task title" />
         </div>
         <div class="copy-field">
-          <span class="result" id="result-span"></span>
-          <button class="action-button" id="copy-button">
+          <span class="result" id="result-span" aria-live="polite" role="status"></span>
+          <button class="action-button" id="copy-button" type="button">
             <span class="icon" aria-hidden="true">✓</span>
             <span class="label">Copy</span>
           </button>
         </div>
       </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
     </div>
     <script src="./main.js"></script>
   </body>

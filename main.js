@@ -22,6 +22,7 @@ const slugifyTitle = (value) =>
 const getElements = () => ({
   copyButton: document.querySelector('#copy-button'),
   copyLabel: document.querySelector('#copy-button .label'),
+  toast: document.querySelector('#toast'),
   themeToggle: document.querySelector('#theme-toggle'),
   themeIcon: document.querySelector('#theme-toggle .theme-icon'),
   themeLabel: document.querySelector('#theme-toggle .theme-label'),
@@ -54,6 +55,7 @@ const initBranchNameGenerator = () => {
   if (
     !elements.copyButton ||
     !elements.copyLabel ||
+    !elements.toast ||
     !elements.themeToggle ||
     !elements.themeIcon ||
     !elements.themeLabel ||
@@ -86,6 +88,7 @@ const initBranchNameGenerator = () => {
 
   const handleTitleInput = (event) => {
     state.slug = slugifyTitle(event.target.value);
+    elements.titleInput.classList.remove('input-invalid');
     updateResult();
   };
 
@@ -115,14 +118,32 @@ const initBranchNameGenerator = () => {
     }, 1800);
   };
 
+  const showToast = (message, variant = 'success') => {
+    elements.toast.textContent = message;
+    elements.toast.classList.remove('success', 'error');
+    elements.toast.classList.add(variant, 'show');
+    setTimeout(() => {
+      elements.toast.classList.remove('show');
+    }, 1800);
+  };
+
   const copyToClipboard = async () => {
     const textToCopy = elements.resultSpan.textContent;
+    if (!state.slug) {
+      setCopyState('error', 'Copy failed');
+      elements.titleInput.classList.add('input-invalid');
+      showToast('Enter a task title first', 'error');
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopyState('success', 'Copied!');
+      showToast('Branch name copied', 'success');
     } catch (error) {
       console.error('Failed to copy branch name', error);
       setCopyState('error', 'Copy failed');
+      showToast('Failed to copy', 'error');
     }
   };
 

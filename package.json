@@ -7,12 +7,14 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "rm -rf dist && mkdir -p dist && esbuild main.js --bundle --minify --outfile=dist/main.js && cp index.html dist/index.html && cp style.css dist/style.css && cp -R images dist/images"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "esbuild": "^0.27.2",
     "jest": "^30.2.0"
   }
 }
