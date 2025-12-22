@@ -31,9 +31,13 @@ const getElements = () => ({
 });
 
 const detectInitialTheme = () => {
-  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-  if (storedTheme === Themes.DARK || storedTheme === Themes.LIGHT) {
-    return storedTheme;
+  try {
+    const storedTheme = typeof localStorage !== 'undefined' && localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === Themes.DARK || storedTheme === Themes.LIGHT) {
+      return storedTheme;
+    }
+  } catch (error) {
+    // Ignore storage issues and fall through to preference check.
   }
 
   const prefersLight =
@@ -133,4 +137,14 @@ const initBranchNameGenerator = () => {
   setTheme(state.theme);
 };
 
-window.addEventListener('DOMContentLoaded', initBranchNameGenerator);
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', initBranchNameGenerator);
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    slugifyTitle,
+    detectInitialTheme,
+    Themes,
+  };
+}
