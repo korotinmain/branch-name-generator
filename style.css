@@ -94,8 +94,6 @@ body {
   font-family: 'Space Grotesk', 'Inter', 'Segoe UI', sans-serif;
   position: relative;
   overflow: hidden;
-  opacity: 0;
-  animation: fadeUp 0.5s ease forwards;
 }
 
 body::before,
@@ -150,8 +148,8 @@ body::after {
   backdrop-filter: blur(16px);
   overflow: hidden;
   opacity: 0;
-  transform: translateY(14px);
-  animation: floatIn 0.7s ease forwards;
+  transform: translateY(8px);
+  animation: floatIn 0.55s ease forwards;
   animation-delay: 0.05s;
 }
 
