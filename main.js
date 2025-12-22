@@ -1,58 +1,90 @@
 const Selectors = {
-  feature: 'feature',
-  bugfix: 'bugfix',
-  hotfix: 'hotfix',
+  FEATURE: 'feature',
+  BUGFIX: 'bugfix',
+  HOTFIX: 'hotfix',
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  const copyButton = document.querySelector('#copy-button');
-  const titleInput = document.querySelector('#title-input');
-  const resultSpan = document.querySelector('#result-span');
-  const featureButton = document.querySelector('#feature-button');
-  const bugfixButton = document.querySelector('#bugfix-button');
-  const hotfixButton = document.querySelector('#hotfix-button');
-  let activeSelector = Selectors.feature;
-  let resultValue = '';
+const slugifyTitle = (value) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 
-  const putValueInputResultSpan = function () {
-    resultSpan.innerHTML = `${activeSelector}/${resultValue}`;
+const getElements = () => ({
+  copyButton: document.querySelector('#copy-button'),
+  copyLabel: document.querySelector('#copy-button .label'),
+  titleInput: document.querySelector('#title-input'),
+  resultSpan: document.querySelector('#result-span'),
+  selectorButtons: Array.from(document.querySelectorAll('[data-selector]')),
+});
+
+const initBranchNameGenerator = () => {
+  const elements = getElements();
+
+  if (
+    !elements.copyButton ||
+    !elements.copyLabel ||
+    !elements.titleInput ||
+    !elements.resultSpan ||
+    elements.selectorButtons.length === 0
+  ) {
+    console.error('Branch name generator could not find required elements.');
+    return;
+  }
+
+  const state = {
+    activeSelector: Selectors.FEATURE,
+    slug: '',
   };
 
-  putValueInputResultSpan();
+  const updateResult = () => {
+    elements.resultSpan.textContent = `${state.activeSelector}/${state.slug}`;
+  };
 
-  titleInput.addEventListener('input', function (event) {
-    const result = event.target.value
-      .trim()
-      .split(' ')
-      .map((x) => x.toLowerCase())
-      .join('-')
-      .replace(/[^a-zA-Z0-9\-]/g, '');
-    resultValue = result;
-    putValueInputResultSpan();
-  });
-
-  const selectorButtons = [featureButton, bugfixButton, hotfixButton];
-  selectorButtons.forEach((button) => {
-    button.addEventListener('click', function () {
-      selectorButtons.forEach((target) => {
-        target.classList.remove('active');
-      });
-      button.classList.add('active');
-      activeSelector = Selectors[button.innerHTML];
-      putValueInputResultSpan();
+  const setSelector = (selector) => {
+    state.activeSelector = selector;
+    elements.selectorButtons.forEach((button) => {
+      const isActive = button.dataset.selector === selector;
+      button.classList.toggle('active', isActive);
     });
-  });
+    updateResult();
+  };
 
-  copyButton.addEventListener('click', async function () {
+  const handleTitleInput = (event) => {
+    state.slug = slugifyTitle(event.target.value);
+    updateResult();
+  };
+
+  const setCopyState = (state, message) => {
+    const states = ['success', 'error'];
+    states.forEach((name) => elements.copyButton.classList.toggle(name, name === state));
+    elements.copyLabel.textContent = message;
+    setTimeout(() => {
+      states.forEach((name) => elements.copyButton.classList.remove(name));
+      elements.copyLabel.textContent = 'Copy';
+    }, 1800);
+  };
+
+  const copyToClipboard = async () => {
+    const textToCopy = elements.resultSpan.textContent;
     try {
-      await navigator.clipboard.writeText(resultSpan.innerHTML);
-      copyButton.innerHTML = 'Copied!';
-      setTimeout(function () {
-        copyButton.innerHTML = 'Copy';
-      }, 2000);
-      console.log('Content copied to clipboard');
-    } catch (err) {
-      console.error('Failed to copy: ', err);
+      await navigator.clipboard.writeText(textToCopy);
+      setCopyState('success', 'Copied!');
+    } catch (error) {
+      console.error('Failed to copy branch name', error);
+      setCopyState('error', 'Copy failed');
     }
+  };
+
+  elements.titleInput.addEventListener('input', handleTitleInput);
+  elements.selectorButtons.forEach((button) => {
+    button.addEventListener('click', () => setSelector(button.dataset.selector));
   });
-});
+  elements.copyButton.addEventListener('click', copyToClipboard);
+
+  updateResult();
+};
+
+window.addEventListener('DOMContentLoaded', initBranchNameGenerator);

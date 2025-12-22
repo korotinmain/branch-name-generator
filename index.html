@@ -49,7 +49,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="icon" href="./images/logo.png" />
@@ -63,16 +63,21 @@
       </div>
       <div class="controls">
         <div class="selection-buttons">
-          <span id="feature-button" class="active">feature</span>
-          <span id="bugfix-button">bugfix</span>
-          <span id="hotfix-button">hotfix</span>
+          <span id="feature-button" class="active" data-selector="feature"
+            >feature</span
+          >
+          <span id="bugfix-button" data-selector="bugfix">bugfix</span>
+          <span id="hotfix-button" data-selector="hotfix">hotfix</span>
         </div>
         <div class="input-field">
           <input type="text" id="title-input" placeholder="Task's title" />
         </div>
         <div class="copy-field">
           <span class="result" id="result-span"></span>
-          <button class="copy" id="copy-button">Copy</button>
+          <button class="action-button" id="copy-button">
+            <span class="icon" aria-hidden="true">✓</span>
+            <span class="label">Copy</span>
+          </button>
         </div>
       </div>
     </div>
