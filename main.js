@@ -4,6 +4,13 @@ const Selectors = {
   HOTFIX: 'hotfix',
 };
 
+const Themes = {
+  DARK: 'dark',
+  LIGHT: 'light',
+};
+
+const THEME_STORAGE_KEY = 'branch-name-generator-theme';
+
 const slugifyTitle = (value) =>
   value
     .trim()
@@ -15,10 +22,27 @@ const slugifyTitle = (value) =>
 const getElements = () => ({
   copyButton: document.querySelector('#copy-button'),
   copyLabel: document.querySelector('#copy-button .label'),
+  themeToggle: document.querySelector('#theme-toggle'),
+  themeIcon: document.querySelector('#theme-toggle .theme-icon'),
+  themeLabel: document.querySelector('#theme-toggle .theme-label'),
   titleInput: document.querySelector('#title-input'),
   resultSpan: document.querySelector('#result-span'),
   selectorButtons: Array.from(document.querySelectorAll('[data-selector]')),
 });
+
+const detectInitialTheme = () => {
+  const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (storedTheme === Themes.DARK || storedTheme === Themes.LIGHT) {
+    return storedTheme;
+  }
+
+  const prefersLight =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: light)').matches;
+
+  return prefersLight ? Themes.LIGHT : Themes.DARK;
+};
 
 const initBranchNameGenerator = () => {
   const elements = getElements();
@@ -26,6 +50,9 @@ const initBranchNameGenerator = () => {
   if (
     !elements.copyButton ||
     !elements.copyLabel ||
+    !elements.themeToggle ||
+    !elements.themeIcon ||
+    !elements.themeLabel ||
     !elements.titleInput ||
     !elements.resultSpan ||
     elements.selectorButtons.length === 0
@@ -37,6 +64,7 @@ const initBranchNameGenerator = () => {
   const state = {
     activeSelector: Selectors.FEATURE,
     slug: '',
+    theme: detectInitialTheme(),
   };
 
   const updateResult = () => {
@@ -55,6 +83,22 @@ const initBranchNameGenerator = () => {
   const handleTitleInput = (event) => {
     state.slug = slugifyTitle(event.target.value);
     updateResult();
+  };
+
+  const setTheme = (theme) => {
+    state.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+
+    const isLight = theme === Themes.LIGHT;
+    elements.themeIcon.textContent = isLight ? '☀️' : '🌙';
+    elements.themeLabel.textContent = isLight ? 'Light' : 'Dark';
+    elements.themeToggle.setAttribute('aria-pressed', String(isLight));
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = state.theme === Themes.LIGHT ? Themes.DARK : Themes.LIGHT;
+    setTheme(nextTheme);
   };
 
   const setCopyState = (state, message) => {
@@ -83,8 +127,10 @@ const initBranchNameGenerator = () => {
     button.addEventListener('click', () => setSelector(button.dataset.selector));
   });
   elements.copyButton.addEventListener('click', copyToClipboard);
+  elements.themeToggle.addEventListener('click', toggleTheme);
 
   updateResult();
+  setTheme(state.theme);
 };
 
 window.addEventListener('DOMContentLoaded', initBranchNameGenerator);
