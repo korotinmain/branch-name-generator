@@ -13,6 +13,8 @@ const THEME_STORAGE_KEY = 'branch-name-generator-theme';
 const HISTORY_STORAGE_KEY = 'branch-name-generator-history';
 const HISTORY_LIMIT = 3;
 
+const sanitizeTaskId = (value) => value.replace(/[^a-zA-Z0-9-]/g, '');
+
 const slugifyTitle = (value) =>
   value
     .trim()
@@ -23,13 +25,14 @@ const slugifyTitle = (value) =>
 
 const getElements = () => ({
   copyButton: document.querySelector('#copy-button'),
-  copyLabel: document.querySelector('#copy-button .label'),
   toast: document.querySelector('#toast'),
   clearHistoryButton: document.querySelector('#clear-history'),
   historyList: document.querySelector('#history-list'),
   themeToggle: document.querySelector('#theme-toggle'),
   themeIcon: document.querySelector('#theme-toggle .theme-icon'),
   themeLabel: document.querySelector('#theme-toggle .theme-label'),
+  taskIdInput: document.querySelector('#task-id'),
+  uppercaseTaskKey: document.querySelector('#uppercase-task-key'),
   titleInput: document.querySelector('#title-input'),
   resultSpan: document.querySelector('#result-span'),
   selectorButtons: Array.from(document.querySelectorAll('[data-selector]')),
@@ -53,18 +56,33 @@ const detectInitialTheme = () => {
   return prefersLight ? Themes.LIGHT : Themes.DARK;
 };
 
+const formatTaskIdForResult = (taskId, uppercase) => {
+  if (!taskId) return '';
+  return uppercase ? taskId.toUpperCase() : taskId.toLowerCase();
+};
+
+const buildBranchName = ({ selector, taskId, slug, uppercase }) => {
+  const normalizedTaskId = formatTaskIdForResult(taskId, uppercase);
+  const segments = [];
+  if (normalizedTaskId) segments.push(normalizedTaskId);
+  if (slug) segments.push(slug);
+  const suffix = segments.join('-');
+  return `${selector}/${suffix}`;
+};
+
 const initBranchNameGenerator = () => {
   const elements = getElements();
 
   if (
     !elements.copyButton ||
-    !elements.copyLabel ||
     !elements.toast ||
     !elements.historyList ||
     !elements.clearHistoryButton ||
     !elements.themeToggle ||
     !elements.themeIcon ||
     !elements.themeLabel ||
+    !elements.taskIdInput ||
+    !elements.uppercaseTaskKey ||
     !elements.titleInput ||
     !elements.resultSpan ||
     elements.selectorButtons.length === 0
@@ -77,6 +95,8 @@ const initBranchNameGenerator = () => {
     activeSelector: Selectors.FEATURE,
     slug: '',
     theme: detectInitialTheme(),
+    taskId: '',
+    uppercaseTaskKey: elements.uppercaseTaskKey.checked,
     history: [],
   };
 
@@ -101,7 +121,12 @@ const initBranchNameGenerator = () => {
   };
 
   const updateResult = () => {
-    elements.resultSpan.textContent = `${state.activeSelector}/${state.slug}`;
+    elements.resultSpan.textContent = buildBranchName({
+      selector: state.activeSelector,
+      taskId: state.taskId,
+      slug: state.slug,
+      uppercase: state.uppercaseTaskKey,
+    });
   };
 
   const setSelector = (selector) => {
@@ -119,13 +144,35 @@ const initBranchNameGenerator = () => {
     updateResult();
   };
 
+  const handleTaskIdInput = (event) => {
+    const cleaned = sanitizeTaskId(event.target.value);
+    state.taskId = cleaned;
+    if (cleaned !== event.target.value) {
+      elements.taskIdInput.value = cleaned;
+    }
+    updateResult();
+  };
+
+  const handleUppercaseToggle = (event) => {
+    state.uppercaseTaskKey = event.target.checked;
+    updateResult();
+  };
+
   const setTheme = (theme) => {
     state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {
+      // ignore
+    }
 
     const isLight = theme === Themes.LIGHT;
-    elements.themeIcon.textContent = isLight ? '☀️' : '🌙';
+    const icon = elements.themeIcon.querySelector('i');
+    if (icon) {
+      icon.classList.toggle('fa-sun', isLight);
+      icon.classList.toggle('fa-moon', !isLight);
+    }
     elements.themeLabel.textContent = isLight ? 'Light' : 'Dark';
     elements.themeToggle.setAttribute('aria-pressed', String(isLight));
   };
@@ -138,10 +185,10 @@ const initBranchNameGenerator = () => {
   const setCopyState = (state, message) => {
     const states = ['success', 'error'];
     states.forEach((name) => elements.copyButton.classList.toggle(name, name === state));
-    elements.copyLabel.textContent = message;
+    elements.copyButton.setAttribute('aria-label', message);
     setTimeout(() => {
       states.forEach((name) => elements.copyButton.classList.remove(name));
-      elements.copyLabel.textContent = 'Copy';
+      elements.copyButton.setAttribute('aria-label', 'Copy');
     }, 1800);
   };
 
@@ -166,10 +213,14 @@ const initBranchNameGenerator = () => {
       row.className = 'history-item';
       const text = document.createElement('span');
       text.textContent = item;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = 'Copy';
-      button.addEventListener('click', async () => {
+      const actions = document.createElement('div');
+      actions.className = 'history-actions';
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'history-action';
+      copyButton.setAttribute('aria-label', 'Copy');
+      copyButton.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i>';
+      copyButton.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(item);
           showToast('Copied from history', 'success');
@@ -177,7 +228,14 @@ const initBranchNameGenerator = () => {
           showToast('Failed to copy', 'error');
         }
       });
-      row.append(text, button);
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'history-action danger';
+      deleteButton.setAttribute('aria-label', 'Delete');
+      deleteButton.innerHTML = '<i class="fa-solid fa-trash" aria-hidden="true"></i>';
+      deleteButton.addEventListener('click', () => removeFromHistory(item));
+      actions.append(copyButton, deleteButton);
+      row.append(text, actions);
       elements.historyList.appendChild(row);
     });
   };
@@ -185,6 +243,12 @@ const initBranchNameGenerator = () => {
   const addToHistory = (value) => {
     const withoutDupes = [value, ...state.history.filter((item) => item !== value)];
     state.history = withoutDupes.slice(0, HISTORY_LIMIT);
+    renderHistory();
+    persistHistory();
+  };
+
+  const removeFromHistory = (value) => {
+    state.history = state.history.filter((item) => item !== value);
     renderHistory();
     persistHistory();
   };
@@ -217,6 +281,8 @@ const initBranchNameGenerator = () => {
   };
 
   elements.titleInput.addEventListener('input', handleTitleInput);
+  elements.taskIdInput.addEventListener('input', handleTaskIdInput);
+  elements.uppercaseTaskKey.addEventListener('change', handleUppercaseToggle);
   elements.selectorButtons.forEach((button) => {
     button.addEventListener('click', () => setSelector(button.dataset.selector));
   });
@@ -236,8 +302,11 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
 if (typeof module !== 'undefined') {
   module.exports = {
+    sanitizeTaskId,
     slugifyTitle,
     detectInitialTheme,
+    formatTaskIdForResult,
+    buildBranchName,
     Themes,
   };
 }

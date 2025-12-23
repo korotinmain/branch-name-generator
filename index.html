@@ -11,9 +11,9 @@
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag('js', new Date());
+      gtag("js", new Date());
 
-      gtag('config', 'G-WZ7W1NQZLE');
+      gtag("config", "G-WZ7W1NQZLE");
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,28 +26,55 @@
       name="keywords"
       content="git branch name generator, branch naming, feature branch, bugfix branch, hotfix branch, slugify task title"
     />
-    <link rel="canonical" href="https://korotinmain.github.io/branch-name-generator/" />
+    <link
+      rel="canonical"
+      href="https://korotinmain.github.io/branch-name-generator/"
+    />
     <meta name="theme-color" content="#7c3aed" />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://korotinmain.github.io/branch-name-generator/" />
-    <meta property="og:title" content="Branch Name Generator | Fast Git Branch Slugs" />
+    <meta
+      property="og:url"
+      content="https://korotinmain.github.io/branch-name-generator/"
+    />
+    <meta
+      property="og:title"
+      content="Branch Name Generator | Fast Git Branch Slugs"
+    />
     <meta
       property="og:description"
       content="Generate clean Git branch names for features, bugfixes, and hotfixes instantly. Type a task title once, pick a prefix, and copy a ready-to-use branch slug."
     />
-    <meta property="og:image" content="https://korotinmain.github.io/branch-name-generator/images/og-cover.svg" />
+    <meta
+      property="og:image"
+      content="https://korotinmain.github.io/branch-name-generator/images/og-cover.svg"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://korotinmain.github.io/branch-name-generator/" />
-    <meta property="twitter:title" content="Branch Name Generator | Fast Git Branch Slugs" />
+    <meta
+      property="twitter:url"
+      content="https://korotinmain.github.io/branch-name-generator/"
+    />
+    <meta
+      property="twitter:title"
+      content="Branch Name Generator | Fast Git Branch Slugs"
+    />
     <meta
       property="twitter:description"
       content="Generate clean Git branch names for features, bugfixes, and hotfixes instantly. Type a task title once, pick a prefix, and copy a ready-to-use branch slug."
     />
-    <meta property="twitter:image" content="https://korotinmain.github.io/branch-name-generator/images/og-cover.svg" />
+    <meta
+      property="twitter:image"
+      content="https://korotinmain.github.io/branch-name-generator/images/og-cover.svg"
+    />
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <link rel="icon" href="./images/favicon.svg" />
     <script type="application/ld+json">
       {
@@ -71,32 +98,74 @@
         title="Toggle light/dark theme"
         type="button"
       >
-        <span class="theme-icon" aria-hidden="true">🌙</span>
+        <span class="theme-icon" aria-hidden="true">
+          <i class="fa-solid fa-moon"></i>
+        </span>
         <span class="theme-label">Dark</span>
       </button>
     </div>
     <main class="content" role="main" aria-label="Branch name generator">
       <div class="header">
         <h1 class="heading">Branch Name Generator</h1>
-        <p>Stop retyping task titles - generate a clean branch name instantly.</p>
+        <p>
+          Stop retyping task titles - generate a clean branch name instantly.
+        </p>
         <p>Select your prefix, slugify, copy, ship.</p>
       </div>
       <div class="controls">
         <div class="selection-buttons">
-          <button id="feature-button" class="active" data-selector="feature" type="button">
+          <button
+            id="feature-button"
+            class="active"
+            data-selector="feature"
+            type="button"
+          >
             feature
           </button>
-          <button id="bugfix-button" data-selector="bugfix" type="button">bugfix</button>
-          <button id="hotfix-button" data-selector="hotfix" type="button">hotfix</button>
+          <button id="bugfix-button" data-selector="bugfix" type="button">
+            bugfix
+          </button>
+          <button id="hotfix-button" data-selector="hotfix" type="button">
+            hotfix
+          </button>
+        </div>
+        <div class="task-meta">
+          <input
+            type="text"
+            id="task-id"
+            placeholder="Task ID (e.g. PND-1234)"
+            aria-label="Task ID"
+            autocomplete="off"
+          />
+          <label class="task-option">
+            <input type="checkbox" id="uppercase-task-key" checked />
+            <span>Uppercase task ID</span>
+          </label>
         </div>
         <div class="input-field">
-          <input type="text" id="title-input" placeholder="Task's title" aria-label="Task title" />
+          <input
+            type="text"
+            id="title-input"
+            placeholder="Task's title"
+            aria-label="Task title"
+          />
         </div>
         <div class="copy-field">
-          <span class="result" id="result-span" aria-live="polite" role="status"></span>
-          <button class="action-button" id="copy-button" type="button">
-            <span class="icon" aria-hidden="true">✓</span>
-            <span class="label">Copy</span>
+          <span
+            class="result"
+            id="result-span"
+            aria-live="polite"
+            role="status"
+          ></span>
+          <button
+            class="action-button"
+            id="copy-button"
+            type="button"
+            aria-label="Copy"
+          >
+            <span class="icon" aria-hidden="true">
+              <i class="fa-regular fa-copy"></i>
+            </span>
           </button>
         </div>
       </div>

@@ -1,4 +1,11 @@
-const { slugifyTitle, detectInitialTheme, Themes } = require('../main');
+const {
+  slugifyTitle,
+  detectInitialTheme,
+  Themes,
+  sanitizeTaskId,
+  formatTaskIdForResult,
+  buildBranchName,
+} = require('../main');
 
 describe('slugifyTitle', () => {
   test('trims leading and trailing whitespace', () => {
@@ -71,5 +78,55 @@ describe('detectInitialTheme', () => {
     global.localStorage = createStorage(null);
     global.window = { matchMedia: mockMatchMedia(false) };
     expect(detectInitialTheme()).toBe(Themes.DARK);
+  });
+});
+
+describe('sanitizeTaskId', () => {
+  test('removes unsupported characters', () => {
+    expect(sanitizeTaskId('RND 12$%34')).toBe('RND1234');
+  });
+
+  test('preserves letters, numbers, and dashes', () => {
+    expect(sanitizeTaskId('AbC-12-xy')).toBe('AbC-12-xy');
+  });
+});
+
+describe('formatTaskIdForResult', () => {
+  test('returns empty string for empty task id', () => {
+    expect(formatTaskIdForResult('', true)).toBe('');
+  });
+
+  test('uppercases task id when enabled', () => {
+    expect(formatTaskIdForResult('rnd-1234', true)).toBe('RND-1234');
+  });
+
+  test('lowercases task id when disabled', () => {
+    expect(formatTaskIdForResult('RND-1234', false)).toBe('rnd-1234');
+  });
+});
+
+describe('buildBranchName', () => {
+  test('joins selector and slug when no task id', () => {
+    expect(buildBranchName({ selector: 'feature', taskId: '', slug: 'new-thing', uppercase: true })).toBe(
+      'feature/new-thing'
+    );
+  });
+
+  test('joins selector and task id when no slug', () => {
+    expect(buildBranchName({ selector: 'feature', taskId: 'rnd-123', slug: '', uppercase: true })).toBe(
+      'feature/RND-123'
+    );
+  });
+
+  test('joins selector, task id, and slug', () => {
+    expect(
+      buildBranchName({ selector: 'feature', taskId: 'rnd-123', slug: 'new-thing', uppercase: true })
+    ).toBe('feature/RND-123-new-thing');
+  });
+
+  test('keeps selector with trailing slash when no suffix', () => {
+    expect(buildBranchName({ selector: 'feature', taskId: '', slug: '', uppercase: true })).toBe(
+      'feature/'
+    );
   });
 });

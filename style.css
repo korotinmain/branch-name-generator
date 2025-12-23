@@ -210,6 +210,9 @@ body::after {
 
 .theme-toggle .theme-icon {
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .theme-toggle .theme-label {
@@ -309,7 +312,23 @@ body::after {
   animation: fadeUp 0.55s ease forwards;
 }
 
+.task-meta {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 0.55s ease forwards;
+  animation-delay: 0.22s;
+}
+
+.copy-field {
+  position: relative;
+  align-items: stretch;
+}
+
 .input-field input,
+.task-meta input[type='text'],
 .copy-field .result {
   flex: 1;
   padding: 14px 16px;
@@ -324,11 +343,120 @@ body::after {
     background-color 0.2s ease;
 }
 
-.input-field input::placeholder {
+.task-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.task-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.task-option span {
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.task-option span::before {
+  content: '';
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  flex: 0 0 auto;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.task-option span::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translate(0, -50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.task-option input:checked + span::before {
+  background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+  border-color: transparent;
+}
+
+.task-option input:checked + span::after {
+  transform: translate(16px, -50%);
+  background: #0c0718;
+  left: 5px;
+}
+
+.task-option input:focus-visible + span::before {
+  outline: 2px solid rgba(124, 58, 237, 0.6);
+  outline-offset: 3px;
+}
+
+[data-theme='light'] .task-option {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+  color: #5b4a7c;
+}
+
+[data-theme='light'] .task-option span {
+  color: #2a1d45;
+}
+
+[data-theme='light'] .task-option span::before {
+  background: rgba(124, 58, 237, 0.16);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+[data-theme='light'] .task-option span::after {
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(58, 24, 112, 0.2);
+}
+
+[data-theme='light'] .task-option input:checked + span::before {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+
+[data-theme='light'] .task-option input:checked + span::after {
+  background: #f7f4ff;
+}
+
+.input-field input::placeholder,
+.task-meta input[type='text']::placeholder {
   color: var(--placeholder);
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .input-field input:focus {
+  border-color: rgba(124, 58, 237, 0.5);
+  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.2);
+}
+
+.task-meta input[type='text']:focus {
   border-color: rgba(124, 58, 237, 0.5);
   box-shadow: 0 12px 40px rgba(124, 58, 237, 0.2);
 }
@@ -348,39 +476,56 @@ body::after {
   font-variant-ligatures: none;
   letter-spacing: 0.02em;
   background: var(--input-bg);
+  padding-right: 58px;
+  position: relative;
+  z-index: 1;
 }
 
 .action-button {
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 0;
+  border-radius: 12px;
   border: none;
   background: linear-gradient(135deg, #7c3aed, #8b5cf6);
   color: #0c0718;
-  font-weight: 700;
-  font-size: 15px;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease,
     background-position 0.2s ease;
   background-size: 200% 200%;
-  box-shadow: 0 16px 40px rgba(124, 58, 237, 0.35);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 52px;
-  min-width: 120px;
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.35);
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
   position: relative;
   overflow: hidden;
+  line-height: 1;
+}
+
+.copy-field .action-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
 }
 
 .action-button:hover {
   transform: translateY(-2px);
   background-position: 100% 0;
-  box-shadow: 0 18px 46px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4);
 }
 
 .action-button:active {
   transform: translateY(0);
+}
+
+.copy-field .action-button:hover {
+  transform: translateY(calc(-50% - 2px));
+}
+
+.copy-field .action-button:active {
+  transform: translateY(-50%);
 }
 
 .action-button:focus-visible {
@@ -389,47 +534,49 @@ body::after {
 }
 
 .action-button .icon {
-  position: absolute;
-  left: 14px;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.2);
   color: #0b1224;
-  opacity: 0;
-  transform: translateY(6px) scale(0.4);
-  transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s ease;
+  transition: transform 0.18s ease, color 0.2s ease;
   pointer-events: none;
+}
+
+.action-button .icon i {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .action-button .label {
   position: relative;
-  z-index: 1;
-  padding-left: 0;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .action-button.success {
   background: linear-gradient(135deg, #a855f7, #c084fc);
-  box-shadow: 0 18px 46px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.4);
 }
 
 .action-button.success .icon {
-  display: inline-flex;
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  background: rgba(12, 7, 24, 0.18);
+  transform: scale(1.06);
 }
 
 .action-button.success .label {
-  padding-left: 14px;
+  position: relative;
 }
 
 .action-button.error {
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 0 18px 46px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 12px 28px rgba(239, 68, 68, 0.35);
 }
 
 .input-field input.input-invalid {
@@ -502,16 +649,41 @@ body::after {
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
 }
 
-.history-item button {
+.history-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.history-action {
   border: none;
   background: linear-gradient(135deg, #7c3aed, #a855f7);
   color: #0c0718;
   font-weight: 700;
-  padding: 8px 10px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 10px 22px rgba(124, 58, 237, 0.3);
+  display: grid;
+  place-items: center;
+}
+
+.history-action i {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.history-action.danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  box-shadow: none;
+}
+
+.history-action.danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.2);
 }
 
 .history-item:hover {
@@ -519,12 +691,12 @@ body::after {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
 }
 
-.history-item button:hover {
+.history-action:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 26px rgba(124, 58, 237, 0.35);
 }
 
-.history-item button:active {
+.history-action:active {
   transform: translateY(0);
 }
 
@@ -622,6 +794,10 @@ body::after {
     grid-template-columns: 1fr;
   }
 
+  .task-meta {
+    grid-template-columns: 1fr;
+  }
+
   .input-field,
   .copy-field {
     flex-direction: column;
@@ -630,7 +806,8 @@ body::after {
   }
 
   .action-button {
-    width: 100%;
+    width: 40px;
+    height: 40px;
   }
 
   .history {
@@ -647,9 +824,9 @@ body::after {
     align-items: flex-start;
   }
 
-  .history-item button {
+  .history-actions {
     width: 100%;
-    text-align: center;
+    justify-content: flex-end;
   }
 
   .theme-toggle-floating {
