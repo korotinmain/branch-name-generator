@@ -25,6 +25,7 @@ const slugifyTitle = (value) =>
 
 const getElements = () => ({
   copyButton: document.querySelector('#copy-button'),
+  copyIcon: document.querySelector('#copy-button .icon i'),
   toast: document.querySelector('#toast'),
   clearHistoryButton: document.querySelector('#clear-history'),
   historyList: document.querySelector('#history-list'),
@@ -75,6 +76,7 @@ const initBranchNameGenerator = () => {
 
   if (
     !elements.copyButton ||
+    !elements.copyIcon ||
     !elements.toast ||
     !elements.historyList ||
     !elements.clearHistoryButton ||
@@ -185,9 +187,15 @@ const initBranchNameGenerator = () => {
   const setCopyState = (state, message) => {
     const states = ['success', 'error'];
     states.forEach((name) => elements.copyButton.classList.toggle(name, name === state));
+    if (state === 'success') {
+      elements.copyIcon.classList.remove('fa-copy', 'fa-regular');
+      elements.copyIcon.classList.add('fa-check', 'fa-solid');
+    }
     elements.copyButton.setAttribute('aria-label', message);
     setTimeout(() => {
       states.forEach((name) => elements.copyButton.classList.remove(name));
+      elements.copyIcon.classList.remove('fa-check', 'fa-solid');
+      elements.copyIcon.classList.add('fa-copy', 'fa-regular');
       elements.copyButton.setAttribute('aria-label', 'Copy');
     }, 1800);
   };
@@ -201,7 +209,21 @@ const initBranchNameGenerator = () => {
     }, 1800);
   };
 
-  const renderHistory = () => {
+  const setHistoryCopyState = (button, icon, state) => {
+    const states = ['success', 'error'];
+    states.forEach((name) => button.classList.toggle(name, name === state));
+    if (state === 'success') {
+      icon.classList.remove('fa-copy', 'fa-regular');
+      icon.classList.add('fa-check', 'fa-solid');
+    }
+    setTimeout(() => {
+      states.forEach((name) => button.classList.remove(name));
+      icon.classList.remove('fa-check', 'fa-solid');
+      icon.classList.add('fa-copy', 'fa-regular');
+    }, 1800);
+  };
+
+  const renderHistory = (highlightValue = '') => {
     if (!elements.historyList) return;
     if (!state.history.length) {
       elements.historyList.innerHTML = `<div class="history-empty">No recent branches yet.</div>`;
@@ -211,6 +233,9 @@ const initBranchNameGenerator = () => {
     state.history.forEach((item) => {
       const row = document.createElement('div');
       row.className = 'history-item';
+      if (highlightValue && item === highlightValue) {
+        row.classList.add('is-new');
+      }
       const text = document.createElement('span');
       text.textContent = item;
       const actions = document.createElement('div');
@@ -220,11 +245,18 @@ const initBranchNameGenerator = () => {
       copyButton.className = 'history-action';
       copyButton.setAttribute('aria-label', 'Copy');
       copyButton.innerHTML = '<i class="fa-regular fa-copy" aria-hidden="true"></i>';
+      const copyIcon = copyButton.querySelector('i');
       copyButton.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(item);
+          if (copyIcon) {
+            setHistoryCopyState(copyButton, copyIcon, 'success');
+          }
           showToast('Copied from history', 'success');
         } catch (error) {
+          if (copyIcon) {
+            setHistoryCopyState(copyButton, copyIcon, 'error');
+          }
           showToast('Failed to copy', 'error');
         }
       });
@@ -240,20 +272,49 @@ const initBranchNameGenerator = () => {
     });
   };
 
+  const findHistoryRow = (value) => {
+    const rows = Array.from(elements.historyList.querySelectorAll('.history-item'));
+    return rows.find((row) => {
+      const text = row.querySelector('span');
+      return text && text.textContent === value;
+    });
+  };
+
   const addToHistory = (value) => {
     const withoutDupes = [value, ...state.history.filter((item) => item !== value)];
     state.history = withoutDupes.slice(0, HISTORY_LIMIT);
-    renderHistory();
+    renderHistory(value);
     persistHistory();
   };
 
   const removeFromHistory = (value) => {
+    const row = findHistoryRow(value);
+    if (row) {
+      row.classList.add('is-removing');
+      setTimeout(() => {
+        state.history = state.history.filter((item) => item !== value);
+        renderHistory();
+        persistHistory();
+      }, 180);
+      return;
+    }
     state.history = state.history.filter((item) => item !== value);
     renderHistory();
     persistHistory();
   };
 
   const clearHistory = () => {
+    const panel = elements.historyList;
+    if (panel) {
+      panel.classList.add('is-clearing');
+      setTimeout(() => {
+        state.history = [];
+        renderHistory();
+        persistHistory();
+        panel.classList.remove('is-clearing');
+      }, 200);
+      return;
+    }
     state.history = [];
     renderHistory();
     persistHistory();

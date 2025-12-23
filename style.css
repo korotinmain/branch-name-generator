@@ -236,13 +236,19 @@ body::after {
 .header p {
   color: var(--muted);
   font-size: clamp(15px, 1vw + 12px, 17px);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.header p + p {
+  margin-top: 6px;
 }
 
 .controls {
   margin-top: 18px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
   position: relative;
   z-index: 1;
 }
@@ -316,6 +322,7 @@ body::after {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) auto;
   gap: 12px;
+  align-items: center;
   opacity: 0;
   transform: translateY(12px);
   animation: fadeUp 0.55s ease forwards;
@@ -332,6 +339,7 @@ body::after {
 .copy-field .result {
   flex: 1;
   padding: 14px 16px;
+  min-height: 52px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: var(--input-bg);
@@ -347,7 +355,8 @@ body::after {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 8px 14px;
+  min-height: 52px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
@@ -470,7 +479,6 @@ body::after {
 }
 
 .copy-field .result {
-  min-height: 48px;
   display: flex;
   align-items: center;
   font-variant-ligatures: none;
@@ -570,6 +578,10 @@ body::after {
   transform: scale(1.06);
 }
 
+.action-button.success .icon i {
+  color: #bbf7d0;
+}
+
 .action-button.success .label {
   position: relative;
 }
@@ -615,6 +627,9 @@ body::after {
   padding: 6px 10px;
   border-radius: 8px;
   transition: background 0.18s ease, color 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .history-header button:hover {
@@ -634,6 +649,12 @@ body::after {
   padding-right: 6px;
 }
 
+.history-list.is-clearing {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
 .history-item {
   display: flex;
   align-items: center;
@@ -646,7 +667,28 @@ body::after {
   color: var(--text);
   font-size: 14px;
   letter-spacing: 0.01em;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease,
+    opacity 0.18s ease;
+}
+
+.history-item.is-removing {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.history-item.is-new {
+  animation: historyPop 0.22s ease-out;
+}
+
+@keyframes historyPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .history-actions {
@@ -673,6 +715,10 @@ body::after {
 .history-action i {
   font-size: 14px;
   line-height: 1;
+}
+
+.history-action.success i {
+  color: #bbf7d0;
 }
 
 .history-action.danger {
@@ -856,6 +902,7 @@ body::after {
   }
 
   .action-button {
-    min-height: 48px;
+    width: 40px;
+    height: 40px;
   }
 }
