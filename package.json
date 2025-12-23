@@ -6,6 +6,12 @@
   "directories": {
     "test": "tests"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e/"
+    ]
+  },
   "scripts": {
     "test": "jest",
     "test:e2e": "playwright test",
