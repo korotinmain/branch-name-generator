@@ -8,12 +8,14 @@
   },
   "scripts": {
     "test": "jest",
+    "test:e2e": "playwright test",
     "build": "rm -rf dist && mkdir -p dist && esbuild main.js --bundle --minify --outfile=dist/main.js && cp index.html dist/index.html && cp style.css dist/style.css && cp -R images dist/images"
   },
   "keywords": [],
   "author": "Denys Korotin",
   "license": "ISC",
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "esbuild": "^0.27.2",
     "jest": "^30.2.0"
   }
